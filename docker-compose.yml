@@ -1,0 +1,30 @@
+# for local development to start the entire stack
+
+version: "3"
+
+services:
+    db:
+        image: postgres:11
+        container_name: postgres
+        restart: always
+        environment:
+            POSTGRES_PASSWORD: ivypostgres
+
+    api:
+        build: backend
+        command: npm start
+        environment:
+            - DB_PASSWORD=ivypostgres
+            - DB_HOST=postgres
+        depends_on:
+            - db
+        ports:
+            - "3000:3000"
+
+    web:
+        build: frontend
+        command: npm start
+        environment:
+            - SERVICE_URL=http://localhost:3000
+        ports:
+            - 9000:9000

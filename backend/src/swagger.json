@@ -1,0 +1,335 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "version": "1.0.0",
+        "title": "Backend application for customers",
+        "description": "A simple backend application using typescript, NodeJs, typeorm, Postgres, etc."
+    },
+    "host": "localhost:3000",
+    "basePath": "/",
+    "tags": [
+        {
+            "name": "Customers",
+            "description": "API for customers"
+        },
+        {
+            "name": "Notes",
+            "description": "API for notes"
+        }
+    ],
+    "schemes": [
+        "http"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "paths": {
+        "/customers": {
+            "parameters": [
+                {
+                    "name": "filter",
+                    "in": "query",
+                    "description": "Filter of the results, only support status (current, prospective, non-active), for example: status=current",
+                    "type": "string"
+                },
+                {
+                    "name": "sort",
+                    "in": "query",
+                    "description": "Sorting of the results, only support phone (ASC, DESC), for example: phone=ASC",
+                    "type": "string"
+                }
+            ],
+            "get": {
+                "tags": [
+                    "Customers"
+                ],
+                "summary": "Get all customers",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Customers"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status or sort order"
+                    }
+                }
+            }
+        },
+        "/customers/{id}": {
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "description": "ID of the customer that we want to find",
+                    "type": "string"
+                }
+            ],
+            "get": {
+                "tags": [
+                    "Customers"
+                ],
+                "summary": "Get customer with given ID",
+                "responses": {
+                    "200": {
+                        "description": "Customer is found",
+                        "schema": {
+                            "$ref": "#/definitions/Customer"
+                        }
+                    },
+                    "404": {
+                        "description": "Customer with ID is not found"
+                    }
+                }
+            },
+            "patch": {
+                "summary": "Update customer's status with give ID",
+                "tags": [
+                    "Customers"
+                ],
+                "parameters": [
+                    {
+                        "name": "customer",
+                        "in": "body",
+                        "description": "Update customer status",
+                        "schema": {
+                            "$ref": "#/definitions/CustomerBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Customer's status is updated",
+                        "schema": {
+                            "$ref": "#/definitions/Customer"
+                        }
+                    },
+                    "404": {
+                        "description": "Customer with ID is not found"
+                    },
+                    "400": {
+                        "description": "Invalid status"
+                    },
+                    "304": {
+                        "description": "Customer is not modified, no status change"
+                    }
+                }
+            }
+        },
+        "/customers/{id}/notes": {
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "description": "ID of the customer that we want to find",
+                    "type": "string"
+                }
+            ],
+            "get": {
+                "tags": [
+                    "Notes"
+                ],
+                "summary": "Get the notes of a customer with given ID",
+                "responses": {
+                    "200": {
+                        "description": "Get notes successfully for the customer",
+                        "schema": {
+                            "$ref": "#/definitions/Notes"
+                        }
+                    },
+                    "404": {
+                        "description": "Customer with ID is not found"
+                    }
+                }
+            },
+            "post": {
+                "summary": "Create a note for a customer with give ID",
+                "tags": [
+                    "Notes"
+                ],
+                "parameters": [
+                    {
+                        "name": "note",
+                        "in": "body",
+                        "description": "Create a note",
+                        "schema": {
+                            "$ref": "#/definitions/NoteBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "A note is created under the customer successfully",
+                        "schema": {
+                            "$ref": "#/definitions/Note"
+                        }
+                    },
+                    "404": {
+                        "description": "Customer with ID is not found"
+                    }
+                }
+            }
+        },
+        "/notes/{noteId}": {
+            "parameters": [
+                {
+                    "name": "noteId",
+                    "in": "path",
+                    "required": true,
+                    "description": "ID of the note that we want to update",
+                    "type": "string"
+                }
+            ],
+            "patch": {
+                "tags": [
+                    "Notes"
+                ],
+                "parameters": [
+                    {
+                        "name": "note",
+                        "in": "body",
+                        "description": "Update note text",
+                        "schema": {
+                            "$ref": "#/definitions/NoteBody"
+                        }
+                    }
+                ],
+                "summary": "Update the note text with given ID",
+                "responses": {
+                    "200": {
+                        "description": "Update the note text successfully",
+                        "schema": {
+                            "$ref": "#/definitions/NoteBody"
+                        }
+                    },
+                    "404": {
+                        "description": "Note with ID is not found"
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete a note with give ID",
+                "tags": [
+                    "Notes"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The note is deleted successfully"
+                    },
+                    "404": {
+                        "description": "Note with ID is not found"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "Customer": {
+            "required": [
+                "id",
+                "firstName",
+                "lastName",
+                "status"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "uniqueItems": true
+                },
+                "lastName": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "prospective",
+                        "current",
+                        "non-active"
+                    ]
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "address": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "$ref": "#/definitions/Note"
+                    }
+                },
+                "created": {
+                    "type": "string"
+                }
+            }
+        },
+        "CustomerBody": {
+            "required": [
+                "status"
+            ],
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "prospective",
+                        "current",
+                        "non-active"
+                    ]
+                }
+            }
+        },
+        "Customers": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "$ref": "#/definitions/Customer"
+            }
+        },
+        "Note": {
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "uniqueItems": true
+                },
+                "note": {
+                    "type": "string"
+                },
+                "created": {
+                    "type": "string"
+                },
+                "customer": {
+                    "type": "object",
+                    "$ref": "#/definitions/Customer"
+                }
+            }
+        },
+        "NoteBody": {
+            "properties": {
+                "text": {
+                    "type": "string"
+                }
+            }
+        },
+        "Notes": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "$ref": "#/definitions/Note"
+            }
+        }
+    }
+}
